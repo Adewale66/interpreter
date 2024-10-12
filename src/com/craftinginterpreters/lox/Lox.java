@@ -12,6 +12,7 @@ public class Lox {
     private static final Interpreter interpreter = new Interpreter();
     static boolean hadError = false;
     static boolean hadRuntimeError = false;
+    static boolean replmode = false;
 
     public static void main(String[] args) throws IOException{
         if (args.length > 1) {
@@ -20,6 +21,7 @@ public class Lox {
         }  else if (args.length == 1) {
             runFile(args[0]);
         } else {
+            replmode = true;
             runPrompt();
         }
     }
@@ -51,13 +53,7 @@ public class Lox {
         List<Stmt> statements = parser.parse();
 
         if (hadError) return;
-        interpreter.interpret(statements);
-
-//        System.out.println(new AstPrinter().print(expression));
-
-//        for (Token token: tokens) {
-//            System.out.println(token);
-//        }
+        interpreter.interpret(statements, replmode);
     }
 
     static void error(int line, String message) {
@@ -65,7 +61,9 @@ public class Lox {
     }
 
     static void  runtimeError(RuntimeError error) {
+        if (error.token != null)
         System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
+
         hadRuntimeError = true;
     }
     private static void report (int line, String where, String message) {
